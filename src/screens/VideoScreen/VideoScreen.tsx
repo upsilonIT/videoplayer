@@ -1,7 +1,8 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import React from 'react'
+import React, { useRef } from 'react'
 import { Text, View } from 'react-native'
 import { RootStackParamList, SCREEN_NAMES } from '../../types/screens'
+import VideoPlayer from '../../VideoPlayer'
 
 type VideoScreenProps = NativeStackScreenProps<
   RootStackParamList,
@@ -12,7 +13,7 @@ export const VideoScreen = ({ route }: VideoScreenProps) => {
   const { uri } = route.params
   return (
     <View>
-      <Text>{uri}</Text>
+      <VideoPlayer />
     </View>
   )
 }
