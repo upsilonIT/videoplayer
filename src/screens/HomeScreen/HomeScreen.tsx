@@ -1,12 +1,12 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import React from 'react'
 import {
+  Dimensions,
   FlatList,
+  Image,
   SafeAreaView,
   StyleSheet,
-  Text,
   TouchableOpacity,
-  View,
 } from 'react-native'
 import { RootStackParamList, SCREEN_NAMES } from '../../types/screens'
 
@@ -16,43 +16,52 @@ type HomeScreenProps = NativeStackScreenProps<
 >
 
 interface IVideos {
-  uri: string
+  videoUri: string
+  imageUrl: string
   id: string
-  title: string
 }
+
+const { width: screenWidth } = Dimensions.get('screen')
+const imgWidth = screenWidth / 2.3
 
 const VIDEOS: IVideos[] = [
   {
-    uri: 'https://2ch.hk/media/src/215666/16414040960200.mp4',
+    videoUri: 'https://2ch.hk/media/src/215666/16414040960200.mp4',
     id: '1',
-    title: 'First video',
+    imageUrl: 'https://2ch.hk/media/thumb/215666/16414040960200s.jpg',
   },
   {
-    uri: 'https://2ch.hk/media/src/215666/16414040960200.mp4',
+    videoUri: 'https://2ch.hk/media/src/215666/16414040960200.mp4',
     id: '2',
-    title: 'Second video',
+    imageUrl: 'https://2ch.hk/media/thumb/215666/16414040960200s.jpg',
   },
   {
-    uri: 'https://2ch.hk/media/src/215666/16414040960200.mp4',
+    videoUri: 'https://2ch.hk/media/src/215666/16414040960200.mp4',
     id: '3',
-    title: 'Third video',
+    imageUrl: 'https://2ch.hk/media/thumb/215666/16414040960200s.jpg',
   },
   {
-    uri: 'https://2ch.hk/media/src/215666/16414040960200.mp4',
+    videoUri: 'https://2ch.hk/media/src/215666/16414040960200.mp4',
     id: '4',
-    title: 'Fourth video',
+    imageUrl: 'https://2ch.hk/media/thumb/215666/16414040960200s.jpg',
   },
   {
-    uri: 'https://2ch.hk/media/src/215666/16414040960200.mp4',
+    videoUri: 'https://2ch.hk/media/src/215666/16414040960200.mp4',
     id: '5',
-    title: 'Fifth video',
+    imageUrl: 'https://2ch.hk/media/thumb/215666/16414040960200s.jpg',
+  },
+  {
+    videoUri: 'https://2ch.hk/media/src/215666/16414040960200.mp4',
+    id: '6',
+    imageUrl: 'https://2ch.hk/media/thumb/215666/16414040960200s.jpg',
   },
 ]
 
 export const HomeScreen = ({ navigation }: HomeScreenProps) => {
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={{ flex: 1 }}>
       <FlatList
+        contentContainerStyle={styles.container}
         data={VIDEOS}
         keyExtractor={(video) => video.id}
         renderItem={({ item }) => {
@@ -60,10 +69,15 @@ export const HomeScreen = ({ navigation }: HomeScreenProps) => {
             <TouchableOpacity
               style={styles.listItem}
               onPress={() => {
-                navigation.navigate(SCREEN_NAMES.Video, { uri: item.uri })
+                navigation.navigate(SCREEN_NAMES.Video, { uri: item.videoUri })
               }}
             >
-              <Text style={{ fontSize: 30 }}>{item.title}</Text>
+              <Image
+                source={{
+                  uri: item.imageUrl,
+                }}
+                style={{ width: '100%', height: '100%' }}
+              />
             </TouchableOpacity>
           )
         }}
@@ -73,8 +87,15 @@ export const HomeScreen = ({ navigation }: HomeScreenProps) => {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  container: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    flexWrap: 'wrap',
+  },
   listItem: {
+    flex: 1,
     marginVertical: 20,
+    width: imgWidth,
+    height: imgWidth,
   },
 })

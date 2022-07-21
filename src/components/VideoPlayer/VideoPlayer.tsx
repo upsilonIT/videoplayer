@@ -12,7 +12,9 @@ import {
   TapGestureHandler,
   TapGestureHandlerStateChangeEvent,
 } from 'react-native-gesture-handler'
+import { useSharedValue, withSpring } from 'react-native-reanimated'
 import Video from 'react-native-video'
+import Triangle from '../Trinagle'
 
 const { width: screenWidth } = Dimensions.get('screen')
 
@@ -23,12 +25,33 @@ const rewindingViewHeight = videoHeight / 2
 const rewindingViewHeightMargin = rewindingViewHeight / 2
 
 export const VideoPlayer = ({ uri }: { uri: string }) => {
+  const leftTriangles = [0, 1, 2]
+  const rightTriangles = [0, 1, 2]
+  const animationProgressLeft = useSharedValue(0)
+  const animationProgressRight = useSharedValue(0)
+  const numOfTriangles = 3
+  const delta = 1 / numOfTriangles
+
   const playerRef = useRef<Video | null>(null)
   const doubleTapRef = useRef<TapGestureHandler>(null)
   const [progress, setProgress] = useState(0)
 
-  const rewindLeft = () => playerRef?.current?.seek(progress - 15)
-  const rewindRight = () => playerRef?.current?.seek(progress + 15)
+  const rewindLeft = () => {
+    playerRef?.current?.seek(progress - 15)
+    animationProgressLeft.value = withSpring(1, undefined, (isFinished) => {
+      if (isFinished) {
+        animationProgressLeft.value = withSpring(0)
+      }
+    })
+  }
+  const rewindRight = () => {
+    playerRef?.current?.seek(progress + 15)
+    animationProgressRight.value = withSpring(1, undefined, (isFinished) => {
+      if (isFinished) {
+        animationProgressRight.value = withSpring(0)
+      }
+    })
+  }
 
   const rewindOnDoubleTap = (e: TapGestureHandlerStateChangeEvent) => {
     playerRef.current?.context
@@ -52,6 +75,7 @@ export const VideoPlayer = ({ uri }: { uri: string }) => {
         >
           <View>
             <Video
+              muted
               ref={playerRef}
               source={{ uri: uri }}
               onBuffer={() => console.log(1)}
@@ -64,8 +88,32 @@ export const VideoPlayer = ({ uri }: { uri: string }) => {
             />
             {Platform.OS === 'ios' && (
               <>
-                <View style={styles.leftRewindingView} />
-                <View style={styles.rightRewindingView} />
+                <View style={styles.leftRewindingView}>
+                  {leftTriangles.map((item, index) => {
+                    return (
+                      <Triangle
+                        key={item}
+                        triangleRotation="left"
+                        animationProgress={animationProgressLeft.value}
+                        index={index}
+                        delta={delta}
+                      />
+                    )
+                  })}
+                </View>
+                <View style={styles.rightRewindingView}>
+                  {rightTriangles.map((item, index) => {
+                    return (
+                      <Triangle
+                        key={item}
+                        triangleRotation="right"
+                        animationProgress={animationProgressRight.value}
+                        index={index}
+                        delta={delta}
+                      />
+                    )
+                  })}
+                </View>
               </>
             )}
           </View>
@@ -93,6 +141,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     top: rewindingViewHeightMargin,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   rightRewindingView: {
     width: rewindingViewWidth,
@@ -100,5 +151,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 0,
     top: rewindingViewHeightMargin,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 })
