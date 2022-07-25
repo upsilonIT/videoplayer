@@ -3,15 +3,17 @@ import { StyleSheet } from 'react-native'
 import Animated, {
   Extrapolate,
   interpolate,
+  SharedValue,
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated'
 
 interface ITriangle {
   triangleRotation: 'left' | 'right'
-  animationProgress: number
+  animationProgress: SharedValue<number>
   index: number
   delta: number
+  numOfTriangles: number
 }
 
 export const Triangle = ({
@@ -19,22 +21,21 @@ export const Triangle = ({
   animationProgress,
   index,
   delta,
+  numOfTriangles,
 }: ITriangle) => {
-  const opacity = useSharedValue(0)
   const animatedStyle = useAnimatedStyle(() => {
-    opacity.value = interpolate(
-      animationProgress / 3,
-      triangleRotation === 'left'
-        ? [
-            Math.abs(2 - index) * animationProgress,
-            Math.abs(2 - index) * animationProgress + delta,
-          ]
-        : [index * animationProgress, index * animationProgress + delta],
-      [0, 1],
-      Extrapolate.CLAMP
-    )
     return {
-      opacity: opacity.value,
+      opacity: interpolate(
+        animationProgress.value,
+        triangleRotation === 'left'
+          ? [delta * index, delta * (index + 1)]
+          : [
+              delta * Math.abs(numOfTriangles - 1 - index),
+              delta * Math.abs(numOfTriangles - index),
+            ],
+        [0, 0.7],
+        Extrapolate.CLAMP
+      ),
     }
   })
 

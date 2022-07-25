@@ -23,6 +23,7 @@ const videoHeight = 200
 const rewindingViewWidth = videoWidth / 4.5
 const rewindingViewHeight = videoHeight / 2
 const rewindingViewHeightMargin = rewindingViewHeight / 2
+const numOfSeconds = 15
 
 export const VideoPlayer = ({ uri }: { uri: string }) => {
   const leftTriangles = [0, 1, 2]
@@ -37,7 +38,7 @@ export const VideoPlayer = ({ uri }: { uri: string }) => {
   const [progress, setProgress] = useState(0)
 
   const rewindLeft = () => {
-    playerRef?.current?.seek(progress - 15)
+    playerRef?.current?.seek(progress - numOfSeconds)
     animationProgressLeft.value = withSpring(1, undefined, (isFinished) => {
       if (isFinished) {
         animationProgressLeft.value = withSpring(0)
@@ -45,7 +46,7 @@ export const VideoPlayer = ({ uri }: { uri: string }) => {
     })
   }
   const rewindRight = () => {
-    playerRef?.current?.seek(progress + 15)
+    playerRef?.current?.seek(progress + numOfSeconds)
     animationProgressRight.value = withSpring(1, undefined, (isFinished) => {
       if (isFinished) {
         animationProgressRight.value = withSpring(0)
@@ -54,7 +55,6 @@ export const VideoPlayer = ({ uri }: { uri: string }) => {
   }
 
   const rewindOnDoubleTap = (e: TapGestureHandlerStateChangeEvent) => {
-    playerRef.current?.context
     if (
       e.nativeEvent.state === State.ACTIVE &&
       e.nativeEvent.y < rewindingViewHeight + rewindingViewHeightMargin &&
@@ -80,7 +80,7 @@ export const VideoPlayer = ({ uri }: { uri: string }) => {
               source={{ uri: uri }}
               onBuffer={() => console.log(1)}
               onError={() => console.log(1)}
-              style={styles.player}
+              style={styles.fullFilling}
               repeat
               controls
               onProgress={(value) => setProgress(value.currentTime)}
@@ -94,9 +94,10 @@ export const VideoPlayer = ({ uri }: { uri: string }) => {
                       <Triangle
                         key={item}
                         triangleRotation="left"
-                        animationProgress={animationProgressLeft.value}
+                        animationProgress={animationProgressLeft}
                         index={index}
                         delta={delta}
+                        numOfTriangles={numOfTriangles}
                       />
                     )
                   })}
@@ -107,9 +108,10 @@ export const VideoPlayer = ({ uri }: { uri: string }) => {
                       <Triangle
                         key={item}
                         triangleRotation="right"
-                        animationProgress={animationProgressRight.value}
+                        animationProgress={animationProgressRight}
                         index={index}
                         delta={delta}
+                        numOfTriangles={numOfTriangles}
                       />
                     )
                   })}
@@ -131,7 +133,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'center',
   },
-  player: {
+  fullFilling: {
     width: '100%',
     height: '100%',
   },
